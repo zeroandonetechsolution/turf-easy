@@ -44,6 +44,9 @@ function initApp() {
         
         const payBtn = document.getElementById('pay-now-btn');
         if(payBtn) payBtn.onclick = handlePayment;
+
+        const demoBtn = document.getElementById('load-demo-btn');
+        if(demoBtn) demoBtn.onclick = simulateDemoScan;
     } catch (err) {
         console.error("App init failed", err);
     }
@@ -297,4 +300,16 @@ function resetScanner() {
 // --- UTILS ---
 function closeAllModals() {
     document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
+}
+
+function simulateDemoScan() {
+    const demoData = {
+        id: "TE-DEMO01",
+        name: "Demo Player",
+        phone: "9999988888",
+        sport: "Cricket",
+        date: "2026-04-24",
+        time: "08:00 PM"
+    };
+    showScanResult(demoData);
 }
