@@ -44,9 +44,6 @@ function initApp() {
         
         const payBtn = document.getElementById('pay-now-btn');
         if(payBtn) payBtn.onclick = handlePayment;
-
-        const demoBtn = document.getElementById('load-demo-btn');
-        if(demoBtn) demoBtn.onclick = simulateDemoScan;
     } catch (err) {
         console.error("App init failed", err);
     }
@@ -176,9 +173,18 @@ function generateTicket(data) {
     if(ticketSlot) ticketSlot.innerText = `${new Date(data.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })} | ${data.time}`;
     
     if(qrContainer) {
-        qrContainer.innerHTML = '';
         const canvas = document.createElement('canvas');
-        QRCode.toCanvas(canvas, data.id, {
+        // Encode FULL DATA into QR for cross-device verification without a database
+        const qrContent = JSON.stringify({
+            id: data.id,
+            name: data.name,
+            time: data.time,
+            date: data.date,
+            sport: data.sport,
+            verified: true
+        });
+
+        QRCode.toCanvas(canvas, qrContent, {
             width: 200,
             margin: 1,
             color: { dark: '#10b981', light: '#ffffff' }
@@ -234,30 +240,42 @@ function stopScanner() {
 }
 
 function onScanSuccess(decodedText) {
-    const bookingJson = localStorage.getItem(`booking_${decodedText}`);
-    
-    if (bookingJson) {
-        const data = JSON.parse(bookingJson);
-        showScanResult(data);
-        stopScanner();
-    } else {
-        const resultEl = document.getElementById('scan-result');
-        if(resultEl) {
-            resultEl.classList.remove('hidden');
-            const reader = document.getElementById('reader');
-            if(reader) reader.classList.add('hidden');
-            resultEl.innerHTML = `
-                <div class="error-msg" style="text-align: center; color: #ef4444;">
-                    <i data-lucide="shield-alert" style="width: 48px; height: 48px; margin-bottom: 1rem;"></i>
-                    <h3>Invalid QR Code</h3>
-                    <p>Booking not found in system.</p>
-                    <button class="primary-btn full-width" onclick="resetScanner()" style="margin-top: 1.5rem;">Try Again</button>
-                </div>
-            `;
-            lucide.createIcons();
+    try {
+        // Try parsing JSON from QR (The New "Real" System)
+        const data = JSON.parse(decodedText);
+        if (data.verified && data.id && data.name) {
+            showScanResult(data);
+            stopScanner();
+            return;
         }
-        stopScanner();
+    } catch (e) {
+        // Fallback to local storage lookup (Original System)
+        const bookingJson = localStorage.getItem(`booking_${decodedText}`);
+        if (bookingJson) {
+            const data = JSON.parse(bookingJson);
+            showScanResult(data);
+            stopScanner();
+            return;
+        }
     }
+
+    // If both failed
+    const resultEl = document.getElementById('scan-result');
+    if(resultEl) {
+        resultEl.classList.remove('hidden');
+        const reader = document.getElementById('reader');
+        if(reader) reader.classList.add('hidden');
+        resultEl.innerHTML = `
+            <div class="error-msg" style="text-align: center; color: #ef4444;">
+                <i data-lucide="shield-alert" style="width: 48px; height: 48px; margin-bottom: 1rem;"></i>
+                <h3>Invalid QR Code</h3>
+                <p>No valid booking data found.</p>
+                <button class="primary-btn full-width" onclick="resetScanner()" style="margin-top: 1.5rem;">Try Again</button>
+            </div>
+        `;
+        lucide.createIcons();
+    }
+    stopScanner();
 }
 
 function showScanResult(data) {
@@ -300,16 +318,4 @@ function resetScanner() {
 // --- UTILS ---
 function closeAllModals() {
     document.querySelectorAll('.modal-overlay').forEach(m => m.classList.remove('active'));
-}
-
-function simulateDemoScan() {
-    const demoData = {
-        id: "TE-DEMO01",
-        name: "Demo Player",
-        phone: "9999988888",
-        sport: "Cricket",
-        date: "2026-04-24",
-        time: "08:00 PM"
-    };
-    showScanResult(demoData);
 }
