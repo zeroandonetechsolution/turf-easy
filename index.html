@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TurfEasy | Book Your Play</title>
+    
+    <!-- External Libraries -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- App Shell -->
+    <div class="app-container">
+        
+        <!-- Navigation -->
+        <nav class="top-nav">
+            <div class="logo">
+                <i data-lucide="trophy"></i>
+                <span>Turf<span>Easy</span></span>
+            </div>
+            <div class="nav-actions">
+                <button id="staff-portal-btn" class="secondary-btn">Staff Portal</button>
+            </div>
+        </nav>
+
+        <main id="main-content">
+            <!-- Customer Home View -->
+            <section id="customer-view" class="view active">
+                <header class="view-header">
+                    <h1>Ready to <span class="highlight">Play?</span></h1>
+                    <p>Find your slot and dominate the field today.</p>
+                </header>
+
+                <!-- Search/Filter -->
+                <div class="search-section card">
+                    <div class="input-group">
+                        <label><i data-lucide="calendar"></i> Select Date</label>
+                        <input type="date" id="booking-date">
+                    </div>
+                </div>
+
+                <!-- Slot Grid -->
+                <div class="slots-section">
+                    <div class="section-title">
+                        <h2>Available Slots</h2>
+                        <span id="display-date">Today</span>
+                    </div>
+                    <div id="slots-grid" class="slots-grid">
+                        <!-- Slots injected via JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Staff Incharge View -->
+            <section id="staff-view" class="view">
+                <div class="staff-header">
+                    <button class="back-btn" onclick="switchView('customer')">
+                        <i data-lucide="arrow-left"></i>
+                    </button>
+                    <h2>Turf Verification</h2>
+                </div>
+
+                <div class="scanner-card card">
+                    <div id="reader" style="width: 100%;"></div>
+                    <div class="scanner-placeholder">
+                        <i data-lucide="scan-line"></i>
+                        <p>Scanning ready for QR code</p>
+                    </div>
+                </div>
+
+                <div id="scan-result" class="result-card card hidden">
+                    <h3>Booking Found</h3>
+                    <div class="result-details">
+                        <div class="detail-row"><span>Name:</span> <strong id="res-name">---</strong></div>
+                        <div class="detail-row"><span>Time:</span> <strong id="res-time">---</strong></div>
+                        <div class="detail-row"><span>Status:</span> <span class="badge" id="res-status">Paid</span></div>
+                    </div>
+                    <button class="primary-btn full-width" onclick="approvePlayer()">Approve to Play</button>
+                    <button class="text-btn full-width" onclick="resetScanner()">Scan Another</button>
+                </div>
+            </section>
+        </main>
+
+        <!-- Modals -->
+        
+        <!-- Booking Details Modal -->
+        <div id="booking-modal" class="modal-overlay">
+            <div class="modal card animate-pop">
+                <button class="close-modal"><i data-lucide="x"></i></button>
+                <h2>Complete Booking</h2>
+                <p>Provide your details to lock the slot.</p>
+                
+                <form id="booking-form">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="cust-name" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="cust-phone" placeholder="Enter mobile number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Sport</label>
+                        <select id="cust-sport">
+                            <option value="football">Football</option>
+                            <option value="cricket">Cricket</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="primary-btn full-width">Proceed to Payment</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Payment Modal -->
+        <div id="payment-modal" class="modal-overlay">
+            <div class="modal card animate-pop">
+                <div class="payment-header">
+                    <i data-lucide="credit-card"></i>
+                    <h2>Secure Payment</h2>
+                </div>
+                <div class="payment-details">
+                    <div class="p-row"><span>Amount:</span> <strong>₹1,200</strong></div>
+                    <div class="p-row"><span>Slot:</span> <strong id="pay-slot-time">08:00 PM</strong></div>
+                </div>
+                <div class="mock-payment">
+                    <div class="loader-circle"></div>
+                    <p>Processing Transaction...</p>
+                </div>
+                <button id="pay-now-btn" class="primary-btn full-width">Pay Now</button>
+            </div>
+        </div>
+
+        <!-- Success/Ticket Modal -->
+        <div id="success-modal" class="modal-overlay">
+            <div class="modal card animate-pop">
+                <div class="success-check">
+                    <i data-lucide="check-circle"></i>
+                </div>
+                <h2>Booking Confirmed!</h2>
+                <p>Present this ticket at the turf entrance.</p>
+                
+                <div class="ticket">
+                    <div id="qrcode-container"></div>
+                    <div class="ticket-meta">
+                        <p><strong id="ticket-name">Name</strong></p>
+                        <p id="ticket-slot">Date | Time</p>
+                    </div>
+                </div>
+                
+                <button class="primary-btn full-width" onclick="closeAllModals()">Done</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
