@@ -204,7 +204,19 @@ function onScanSuccess(decodedText) {
         showScanResult(data);
         stopScanner();
     } else {
-        alert("Invalid QR Code: Booking not found in system.");
+        const resultEl = document.getElementById('scan-result');
+        resultEl.classList.remove('hidden');
+        document.getElementById('reader').classList.add('hidden');
+        resultEl.innerHTML = `
+            <div class="error-msg" style="text-align: center; color: #ef4444;">
+                <i data-lucide="shield-alert" style="width: 48px; height: 48px; margin-bottom: 1rem;"></i>
+                <h3>Invalid QR Code</h3>
+                <p>Booking not found in system.</p>
+                <button class="primary-btn full-width" onclick="resetScanner()" style="margin-top: 1.5rem;">Try Again</button>
+            </div>
+        `;
+        lucide.createIcons();
+        stopScanner();
     }
 }
 
@@ -221,7 +233,18 @@ function approvePlayer() {
 }
 
 function resetScanner() {
-    document.getElementById('scan-result').classList.add('hidden');
+    const resultEl = document.getElementById('scan-result');
+    resultEl.classList.add('hidden');
+    resultEl.innerHTML = `
+        <h3>Booking Found</h3>
+        <div class="result-details">
+            <div class="detail-row"><span>Name:</span> <strong id="res-name">---</strong></div>
+            <div class="detail-row"><span>Time:</span> <strong id="res-time">---</strong></div>
+            <div class="detail-row"><span>Status:</span> <span class="badge" id="res-status">Paid</span></div>
+        </div>
+        <button class="primary-btn full-width" onclick="approvePlayer()">Approve to Play</button>
+        <button class="text-btn full-width" onclick="resetScanner()">Scan Another</button>
+    `;
     document.getElementById('reader').classList.remove('hidden');
     startScanner();
 }
